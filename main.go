@@ -13,6 +13,9 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/natefinch/lumberjack.v2"
+	"io"
+	"os"
 )
 
 var VERSION = "master"
@@ -125,7 +128,24 @@ func main() {
 		}
 	}()
 
-	
+	logger := &lumberjack.Logger{
+        // 日志输出文件路径
+            Filename:   "../log/info.log",
+        // 日志文件最大 size, 单位是 MB
+            MaxSize:    4, // megabytes
+        // 最大过期日志保留的个数
+            MaxBackups: 5,
+        // 保留过期文件的最大时间间隔,单位是天
+            MaxAge:     28,   //days
+        // 是否需要压缩滚动日志, 使用的 gzip 压缩
+            Compress:   false, // disabled by default
+            LocalTime : true,
+        }
+
+    mw := io.MultiWriter(os.Stdout, logger)
+    log.SetOutput(mw)
+    log.SetLevel(log.DebugLevel)
+
 	log.Infof(`
      _     _            ____       
     | |   (_)_   _____ / ___| ___  
